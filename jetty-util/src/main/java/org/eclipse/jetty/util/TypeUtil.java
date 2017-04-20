@@ -24,6 +24,7 @@ import java.lang.reflect.Constructor;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.lang.reflect.Modifier;
+import java.net.URI;
 import java.net.URL;
 import java.security.CodeSource;
 import java.security.ProtectionDomain;
@@ -710,25 +711,54 @@ public class TypeUtil
                 URL location = source.getLocation();
                 
                 if (location!=null)
+                {
+                    if(LOG.isDebugEnabled())
+                    {
+                        LOG.debug("[{}].ProtectionDomain.CodeSource.Location = {}", clazz.getName(), location);
+                    }
                     return Resource.newResource(location);
+                }
             }
         }
-        
-        String rname = clazz.getName().replace('.','/')+".class";
+    
         ClassLoader loader = clazz.getClassLoader();
-        URL url = (loader==null?ClassLoader.getSystemClassLoader():loader).getResource(rname);
-        if (url!=null)
+        if(loader == null)
         {
-            try
+            // If class itself has no Classloader, then this class cannot be looked up
+            // for a location.
+            if(LOG.isDebugEnabled())
             {
-                return Resource.newResource(URIUtil.getJarSource(url.toURI()));
+                LOG.debug("{} has no ClassLoader", clazz.getName());
             }
-            catch(Exception e)
+            return null;
+        }
+    
+        String rname = clazz.getName().replace('.', '/') + ".class";
+        URL url = loader.getResource(rname);
+        if (url == null)
+        {
+            // Not found, then this class didn't come from a ClassLoader supporting getResource()
+            // Probably a dynamically created Class.
+            if(LOG.isDebugEnabled())
             {
-                LOG.debug(e);
-            }  
-        }    
+                LOG.debug("{}.getResource({}) == null", loader, rname);
+            }
+            return null;
+        }
         
-        return null;
+        try
+        {
+            URI jarSourceURI = URIUtil.getJarSource(url.toURI());
+            if(LOG.isDebugEnabled())
+            {
+                LOG.debug("URIUtil.getJarSource({}) = {}", rname, jarSourceURI);
+            }
+            return Resource.newResource(jarSourceURI);
+        }
+        catch(Exception ignore)
+        {
+            LOG.ignore(ignore);
+            return null;
+        }
     }
 }
