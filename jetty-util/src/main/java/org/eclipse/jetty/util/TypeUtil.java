@@ -720,38 +720,22 @@ public class TypeUtil
                 }
             }
         }
-    
-        ClassLoader loader = clazz.getClassLoader();
-        if(loader == null)
-        {
-            // If class itself has no Classloader, then this class cannot be looked up
-            // for a location.
-            if(LOG.isDebugEnabled())
-            {
-                LOG.debug("{} has no ClassLoader", clazz.getName());
-            }
-            return null;
-        }
-    
-        String rname = clazz.getName().replace('.', '/') + ".class";
-        URL url = loader.getResource(rname);
+        
+        // Simple origin/location lookup
+        URL url = clazz.getResource(clazz.getSimpleName() + ".class");
         if (url == null)
         {
             // Not found, then this class didn't come from a ClassLoader supporting getResource()
             // Probably a dynamically created Class.
-            if(LOG.isDebugEnabled())
-            {
-                LOG.debug("{}.getResource({}) == null", loader, rname);
-            }
             return null;
         }
-        
+    
         try
         {
             URI jarSourceURI = URIUtil.getJarSource(url.toURI());
             if(LOG.isDebugEnabled())
             {
-                LOG.debug("URIUtil.getJarSource({}) = {}", rname, jarSourceURI);
+                LOG.debug("URIUtil.getJarSource({}) = {}", url, jarSourceURI);
             }
             return Resource.newResource(jarSourceURI);
         }
