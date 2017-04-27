@@ -1,3 +1,5 @@
+jetty-9.4.6-SNAPSHOT
+
 jetty-9.4.5.v20170427 - 27 April 2017
  + 1235 DNS lookup in newSSLEngine(InetSocketAddress address)
  + 1348 Add a BOM artifact
