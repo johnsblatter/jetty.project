@@ -1,3 +1,6 @@
+[![security status](https://www.meterian.com/badge/gh/johnsblatter/jetty.project/security)](https://www.meterian.com/report/gh/johnsblatter/jetty.project)
+[![defect status](https://www.meterian.com/badge/gh/johnsblatter/jetty.project/defect)](https://www.meterian.com/report/gh/johnsblatter/jetty.project)
+
 Eclipse Jetty Canonical Repository
 ==================================
 
